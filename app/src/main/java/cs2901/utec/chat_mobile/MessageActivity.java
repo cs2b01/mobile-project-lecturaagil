@@ -7,6 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,52 +33,32 @@ public class MessageActivity extends AppCompatActivity {
         return this;
     }
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView first_line;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            first_line = itemView.findViewById(R.id.element_view_first_line);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
-        String username = getIntent().getExtras().get("username").toString();
-        setTitle("@"+username);
+        String username = getIntent().getExtras().get("name").toString();
+        setTitle(username);
         mRecyclerView = findViewById(R.id.main_recycler_view);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
+
+        String content = getIntent().getExtras().get("content").toString();
+        TextView content_view = (TextView)findViewById(R.id.content);
+        content_view.setText(content);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        getChats();
-    }
 
-
-    public void getChats(){
-        String url = "http://10.0.2.2:8080/resumen";
-        RequestQueue queue = Volley.newRequestQueue(this);
-        Map<String, String> params = new HashMap();
-        JSONObject parameters = new JSONObject(params);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                parameters,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray data = response.getJSONArray("data");
-                            mAdapter = new ChatAdapter(data, getActivity());
-                            mRecyclerView.setAdapter(mAdapter);
-                        }catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // TODO: Handle error
-                error.printStackTrace();
-
-            }
-        });
-        queue.add(jsonObjectRequest);
     }
 }
